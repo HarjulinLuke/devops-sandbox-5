@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "dummycontent": "This is a dummy content, urgent prod fix",
+=======
+  "dummycontent": "This is a dummy content, cool feature.",
+>>>>>>> develop
   "hotfix": "This is a hotfix",
   "hotfix2": "This is a prod hotfix on main"
 }
