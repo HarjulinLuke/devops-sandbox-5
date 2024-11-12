@@ -1,0 +1,43 @@
+name: PR Closure
+
+on:
+  pull_request:
+    branches: [ 'main' ]
+    types: [closed]
+
+jobs:
+  SyncDevelopToMain:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: develop
+        ssh-key: ${{ secrets.BYPASS_KEY }}
+
+    - name: Set up SSH
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.BYPASS_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+    - name: Sync develop with main
+      shell: bash
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git pull origin/main
+        git merge --no-commit --no-ff main
+        if [ $? -eq 0 ]; then
+          echo "Merging main into develop..."
+          git commit -m "Sync develop with changes on main"
+          git push origin develop
+        else
+          echo "Merge conflict(s) detected. Creating PR for user to resolve..."
+          git merge --abort
+          git checkout -b conflict/main-develop
+          git push
+          gh pr create --base develop --head conflict/main-develop --title "Sync develop with main (conflict)" --body "Please resolve merge conflicts."
+        fi
