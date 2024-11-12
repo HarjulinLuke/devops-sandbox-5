@@ -29,9 +29,11 @@ jobs:
         git fetch origin main
         git merge --no-commit --no-ff origin/main
         if [ $? -eq 0 ]; then
-          echo "Merging main into develop..."
+          echo "Creating PR to merge main into develop..."
           git commit -m "Sync develop with changes on main"
-          git push
+          pr=$(gh pr create --base develop --head main --title "Sync develop with main" --body "Please review and merge changes.")
+          gh pr review $pr --approve
+          gh pr merge $pr --auto
         else
           echo "Merge conflict(s) detected. Creating PR for user to resolve..."
           git merge --abort
