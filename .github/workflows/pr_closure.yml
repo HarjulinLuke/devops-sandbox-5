@@ -12,6 +12,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
+        ref: develop
         ssh-key: ${{ secrets.BYPASS_KEY }}
 
     - name: Set up SSH
@@ -27,7 +28,8 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git merge --no-commit --no-ff develop
+        git pull origin/main
+        git merge --no-commit --no-ff main
         if [ $? -eq 0 ]; then
           echo "Merging main into develop..."
           git commit -m "Sync develop with changes on main"
@@ -35,5 +37,7 @@ jobs:
         else
           echo "Merge conflict(s) detected. Creating PR for user to resolve..."
           git merge --abort
-          gh pr create --base develop --head main --title "Sync develop with main" --body "Please resolve merge conflicts before merging develop into main."
+          git checkout -b conflict/main-develop
+          git push
+          gh pr create --base develop --head conflict/main-develop --title "Sync develop with main (conflict)" --body "Please resolve merge conflicts before merging develop into main."
         fi
