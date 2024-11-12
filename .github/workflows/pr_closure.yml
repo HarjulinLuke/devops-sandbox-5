@@ -16,7 +16,7 @@ jobs:
         ssh-key: ${{ secrets.BYPASS_KEY }}
         fetch-depth: 0
 
-    - name: Set up SSH
+    - name: Sync develop with main
       shell: bash
       run: |
         mkdir -p ~/.ssh
@@ -24,9 +24,6 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-    - name: Sync develop with main
-      shell: bash
-      run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git fetch origin main
