@@ -39,5 +39,5 @@ jobs:
           git merge --abort
           git checkout -b conflict/main-develop
           git push
-          gh pr create --base develop --head conflict/main-develop --title "Sync develop with main (conflict)" --body "Please resolve merge conflicts before merging develop into main."
+          gh pr create --base develop --head conflict/main-develop --title "Sync develop with main (conflict)" --body "Please resolve merge conflicts."
         fi
