@@ -28,12 +28,12 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git pull origin main
-        git merge --no-commit --no-ff main
+        git fetch origin develop
+        git merge --no-commit --no-ff origin/main
         if [ $? -eq 0 ]; then
           echo "Merging main into develop..."
           git commit -m "Sync develop with changes on main"
-          git push origin develop
+          git push
         else
           echo "Merge conflict(s) detected. Creating PR for user to resolve..."
           git merge --abort
