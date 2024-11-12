@@ -24,7 +24,8 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git fetch origin main
         git merge --no-commit --no-ff origin/main
         if [ $? -eq 0 ]; then
