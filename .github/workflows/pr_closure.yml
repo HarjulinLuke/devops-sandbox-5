@@ -1,0 +1,33 @@
+name: PR Closure
+
+on:
+  pull_request:
+    branches: [ 'main' ]
+    types: [closed]
+
+jobs:
+  SyncDevelopToMain:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ssh-key: ${{ secrets.BYPASS_KEY }}
+
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.BYPASS_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+    - name: Push changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git merge --no-commit --no-ff develop
+        
+
+        git add .
+        git commit -m "Automated commit"
+        git push origin main
