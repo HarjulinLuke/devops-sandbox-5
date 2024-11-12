@@ -22,12 +22,18 @@ jobs:
         ssh-keyscan github.com >> ~/.ssh/known_hosts
 
     - name: Push changes
+      shell: pwsh
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git merge --no-commit --no-ff develop
-        
-
-        git add .
-        git commit -m "Automated commit"
-        git push origin main
+        if ($?) {
+          Write-Host "Merging main into develop..."
+          git commit -m "Sync develop with changes on main"
+          git push origin develop
+        } 
+        else {
+          Write-Error "Merge conflict(s) detected. Creating PR for user to resolve..."
+          git merge --abort
+          gh pr create --base develop --head main --title "Sync develop with main" --body "Please resolve merge conflicts before merging develop into main."
+        }
