@@ -1,0 +1,22 @@
+name: 'Generate New Version'
+run-name: PR ${{ github.event.pull_request.number }} Closed - ${{ github.event.pull_request.merged && 'Creating New Tags' || 'PR not merged - no new tags' }}
+
+on:
+  pull_request:
+    types: [closed]
+    branches: ['main']
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: read
+
+jobs:
+      
+  CreateNextRelease:
+    name: 'Creating Next Github Release'
+    uses: ./.github/workflows/create-github-release.yml
+    with:
+      create-major-minor: true
+      create-major: true
+      tag-prefix: 'v'

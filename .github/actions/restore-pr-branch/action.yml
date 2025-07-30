@@ -1,0 +1,68 @@
+name: Restore PR Branch
+inputs:
+  pr-number:
+    description: 'PR Number'
+    required: true
+  github-token:
+    description: 'GitHub Token'
+    required: true
+  pr-branch-name:
+    description: 'Branch Name'
+    required: true
+  repo-owner:
+    description: 'Repository Owner'
+    required: true
+  repo-name:
+    description: 'Repository Name'
+    required: true
+  checkout-pr-branch:
+    description: 'Checkout PR Branch (true/false)'
+    required: false
+    default: 'false'
+
+outputs:
+  last-commit-sha:
+    description: 'Last Commit SHA of PR branch'
+
+runs:
+  using: 'composite'
+  steps:
+  - name: Get Last Commit SHA of Closed PR
+    id: get-last-commit
+    shell: pwsh
+    env:
+      GITHUB_TOKEN: ${{ inputs.github-token }}
+    run: |
+      # Fetch the list of commits in the PR
+      $commits = @(gh pr view ${{ inputs.pr-number }} --json commits -q '.commits[].oid')
+      $lastCommitSha = $commits[$commits.Length-1]
+      Write-Host "Last commit SHA: $lastCommitSha"
+      "lastCommitSha=$lastCommitSha" >> $env:GITHUB_OUTPUT
+
+  - name: 'Create Head Branch of PR'
+    shell: pwsh
+    env:
+      GITHUB_TOKEN: ${{ inputs.github-token }}
+    run: |
+      git fetch --all
+      Write-Host "Local branches:"
+      git branch --list
+      Write-Host "Remote branches:"
+      git branch --list -r
+      if ($null -eq (git branch --list -r origin/${{ inputs.pr-branch-name }})) {
+        Write-Host "Re-creating branch ${{ inputs.pr-branch-name }}..."
+        gh api repos/${{ inputs.repo-owner }}/${{ inputs.repo-name }}/git/refs -X POST -F ref=refs/heads/${{ inputs.pr-branch-name }} -F sha=${{ steps.get-last-commit.outputs.lastCommitSha }}
+        git fetch
+        Write-Host "Remote branches:"
+        git branch --list -r
+      }
+      else {
+        Write-Host "Branch ${{ inputs.pr-branch-name }} already exists."
+      }
+
+  - name: 'Checkout PR Branch'
+    if: ${{ inputs.checkout-pr-branch == 'true' }}
+    shell: pwsh
+    run: |
+      Write-Host "Checking out branch ${{ github.event.pull_request.head.ref }}..."
+      git checkout ${{ github.event.pull_request.head.ref }}

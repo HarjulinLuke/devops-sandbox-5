@@ -1,0 +1,116 @@
+name: Create GitHub Release
+description: Create a GitHub release using GH CLI based on a version.
+
+inputs:
+  tag-name:
+    description: 'The tag name.'
+    required: true
+  release-name:
+    description: 'The release name.'
+    required: true
+  commitish:
+    description: 'The commitish value.'
+    required: false
+  draft:
+    description: 'Whether the release is a draft.'
+    required: false
+    default: 'false'
+  prerelease:
+    description: 'Mark the release as a prerelease.'
+    required: false
+    default: 'false'
+  discussion-category:
+    description: 'Start a discussion of the specified category.'
+    required: false
+  generate-notes:
+    description: 'Automatically generate release notes.'
+    required: false
+    default: 'false'
+  notes:
+    description: 'Release notes.'
+    required: false
+  notes-file:
+    description: 'Read release notes from a file.'
+    required: false
+  latest:
+    description: 'Mark as the latest release.'
+    required: false
+    default: 'true'
+  token:
+    description: 'GitHub token to use for authentication.'
+    required: false
+    default: ${{ github.token }}
+  repo:
+    description: 'Repository to create the release in (owner/repo).'
+    required: false
+    default: ${{ github.repository }}
+
+outputs:
+  release-url:
+    description: 'The URL of the created release.'
+    value: ${{ steps.output-release-url.outputs.release-url }}
+
+runs:
+  using: 'composite'
+  steps:
+  - name: Get Release
+    id: get_release
+    shell: pwsh
+    continue-on-error: true
+    env:
+      GH_TOKEN: ${{ inputs.token }}
+    run: |
+      git config user.email "github-actions[bot]@users.noreply.github.com"
+      git config user.name "github-actions[bot]"
+      Write-Output "Set git config user.name and user.email"
+      $tag = "${{ inputs.tag-name }}"
+      $release_id = gh release view $tag --repo "${{ inputs.repo }}" --json id --jq ".id" 2>$null
+      if ($LASTEXITCODE -eq 0 -and $release_id) {
+        Write-Output "Release ID: $release_id"
+        "release_exists=true" >> $env:GITHUB_OUTPUT
+      } else {
+        Write-Output "No existing release found with tag: $tag"
+        "release_exists=false" >> $env:GITHUB_OUTPUT
+      }
+      exit 0
+
+  - name: Create Release
+    shell: pwsh
+    if: ${{ steps.get_release.outputs.release_exists  == 'false' }}
+    env:
+      GH_TOKEN: ${{ inputs.token }}
+    run: |
+      git config --global user.name "github-actions[bot]"
+      git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      $args = "${{ inputs.tag-name }}"
+      $args += " --title ${{ inputs.release-name }}"
+      if ("${{ inputs.repo }}") { $args += " --repo ${{ inputs.repo }}" }
+      if ("${{ inputs.notes }}") { $args += " --notes ${{ inputs.notes }}" }
+      if ("${{ inputs.notes-file }}") { $args += " --notes-file ${{ inputs.notes-file }}" }
+      if ("${{ inputs.commitish }}") { $args += " --target ${{ inputs.commitish }}" } else { $args += " --target ${{ github.sha }}" }
+      if ("${{ inputs.draft }}" -eq "true") { $args += " --draft" }
+      if ("${{ inputs.prerelease }}" -eq "true") { $args += " --prerelease" }
+      if ("${{ inputs.generate-notes }}" -eq "true") { $args += " --generate-notes" }
+      if ("${{ inputs.latest }}" -eq "false") { $args += " --latest false" }
+      if ("${{ inputs.discussion-category }}") { $args += " --discussion-category ${{ inputs.discussion-category }}" }
+      Write-Output "command: gh release create $args"
+      iex "gh release create $args"
+
+  - name: Update Existing Release With New Ref
+    shell: 'pwsh'
+    if: ${{ steps.get_release.outputs.release_exists  == 'true' }}
+    env:
+      GH_TOKEN: ${{ inputs.token }}
+    run: |
+      git config user.email "github-actions[bot]@users.noreply.github.com"
+      git config user.name "github-actions[bot]"
+      git tag -f ${{ inputs.tag-name }} ${{ inputs.commitish }}
+      git push origin -f  ${{ inputs.tag-name }}
+
+  - name: Output Release URL
+    id: output-release-url
+    shell: pwsh
+    run: |
+      $url = "https://github.com/${{ inputs.repo }}/releases/tag/${{ inputs.tag-name }}"
+      Write-Output "Release created at: $url"
+      "release-url=$url" >> $env:GITHUB_OUTPUT
