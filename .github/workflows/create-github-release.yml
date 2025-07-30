@@ -1,0 +1,138 @@
+name: 'Create New Release'
+
+on:
+  workflow_call:
+    inputs:
+      pr-number:
+        description: 'PR Number'
+        required: false
+        type: string
+        default: '${{ github.event.pull_request.number }}'
+      pr-branch-name:
+        description: 'PR Branch Name'
+        required: false
+        type: string
+        default: '${{ github.event.pull_request.head.ref }}'
+      tag-prefix:
+        description: "Prefix for the tag. Default is empty"
+        required: false
+        type: string
+        default: ''
+      create-major-minor:
+        description: "Option to create Major Minor Versioning"
+        required: false
+        type: string
+        default: 'true'
+      create-major:
+        description: "Option to create Major Version"
+        required: false
+        type: string
+        default: 'true'
+      delete-merged-branch:
+        description: "Option to delete merged branch"
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: read
+
+jobs:
+  CreateNewReleaseVersion:
+    name: 'Create New Tags'
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged
+    runs-on: 'ubuntu-latest'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Restore PR Branch
+      uses: ./.github/actions/restore-pr-branch
+      id: restore-pr-branch
+      with:
+        pr-number: ${{ inputs.pr-number }}
+        pr-branch-name: ${{ inputs.pr-branch-name }}
+        repo-owner: ${{ github.repository_owner }}
+        repo-name: ${{ github.event.repository.name }}
+        github-token: ${{ github.token }}
+        checkout-pr-branch: 'true'
+
+    - name: Prepare gitversion tagprefix
+      id: prepare_tagprefix
+      shell: pwsh
+      run: |
+        if ("${{ inputs.tag-prefix }}" -ne "") {
+          "tag-prefix-config=/overrideconfig tag-prefix=${{ inputs.tag-prefix }}" >> $env:GITHUB_OUTPUT
+        }
+    - name: Get Next Tag
+      id: gitversion
+      uses: ./.github/actions/git-version
+      with:
+        git-tool-latest: 'true'
+        use-config-file: 'true'
+        pre-release: 'false'
+        additional-arguments: '${{ steps.prepare_tagprefix.outputs.tag-prefix-config }} /b ${{ inputs.pr-branch-name }}'
+
+    - name: Create Major Release 
+      id: create_major_release
+      if: ${{ inputs.create-major == 'true' }}
+      uses: ./.github/actions/create-github-release
+      with:
+        tag-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.Major }}'
+        release-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.Major }}'
+        commitish: '${{ github.sha }}'
+        draft: false
+        prerelease: false
+        generate-notes: false
+        token: ${{ github.token }}
+        repo: ${{ github.repository }}
+
+    - name: Create Major Minor Release 
+      id: create_majorminor_release
+      if: ${{ inputs.create-major-minor == 'true' }}
+      uses: ./.github/actions/create-github-release
+      with:
+        tag-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.Major }}.${{ steps.gitversion.outputs.Minor }}'
+        release-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.Major }}.${{ steps.gitversion.outputs.Minor }}'
+        commitish: '${{ github.sha }}'
+        draft: false
+        prerelease: false
+        generate-notes: false
+        token: ${{ github.token }}
+        repo: ${{ github.repository }}
+
+    - name: Create Version Release
+      id: create_release
+      uses: ./.github/actions/create-github-release
+      with:
+        tag-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.MajorMinorPatch }}'
+        release-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.MajorMinorPatch }}'
+        commitish: '${{ github.sha }}'
+        draft: false
+        prerelease: false
+        generate-notes: true
+        token: ${{ github.token }}
+        repo: ${{ github.repository }}
+
+    - name: Output to Job Summary
+      id: output-element
+      shell: pwsh
+      run: |
+        Write-Host "New Tag: ${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.majorMinorPatch }}"
+        Write-Host "New version: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+        "# :bookmark: New Tag: ${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.majorMinorPatch }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+        "## New Version: ${{ steps.gitversion.outputs.majorMinorPatch }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+        "## Branch: ${{ inputs.pr-branch-name }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+        "[View Release on GitHub](${{ steps.create_release.outputs.release-url }}) `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+
+    - name: Delete Merged Branch
+      if: ${{ inputs.delete-merged-branch == true }}
+      shell: 'pwsh'
+      run: | 
+        if ('${{ inputs.pr-branch-name }}' -ne '${{ github.event.repository.default_branch }}') {
+          git push origin --delete ${{ inputs.pr-branch-name }}
+        }

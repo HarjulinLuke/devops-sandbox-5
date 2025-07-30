@@ -1,0 +1,55 @@
+mode: ContinuousDelivery
+tag-prefix: 'v'
+next-version: 1.0.0
+major-version-bump-message: '\+semver:\s?(breaking|major)'
+minor-version-bump-message: '\+semver:\s?(feature|minor)'
+patch-version-bump-message: '\+semver:\s?(fix|patch)'
+no-bump-message: '\+semver:\s?(none|skip)'
+commit-message-incrementing: Enabled
+branches:
+  main:
+    regex: ^master$|^main$
+    mode: ContinuousDelivery
+    tag: ''
+    increment: Patch
+    prevent-increment-of-merged-branch-version: true
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: true
+  develop:
+    regex: ^dev(elop)?(ment)?$
+    mode: ContinuousDeployment
+    tag: alpha
+    increment: Minor
+    prevent-increment-of-merged-branch-version: false
+    tracks-release-branches: true
+  release:
+    regex: ^release?[/-]
+    mode: ContinuousDelivery
+    tag: beta
+    increment: Minor
+    prevent-increment-of-merged-branch-version: true
+    source-branches: [ develop ]
+    is-release-branch: true
+  feature:
+    regex: ^feature?[/-]
+    mode: ContinuousDelivery
+    tag: useBranchName
+    increment: Inherit
+    prevent-increment-of-merged-branch-version: false
+    source-branches:
+    - develop
+    - feature
+  hotfix:
+    regex: ^hotfix?[/-]
+    mode: ContinuousDelivery
+    tag: beta
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    source-branches: [ main ]
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: false
+ignore:
+  sha: []
+commit-date-format: yyyy-MM-dd
