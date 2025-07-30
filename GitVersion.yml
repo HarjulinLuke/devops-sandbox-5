@@ -1,4 +1,4 @@
-workflow: GitFlow/v1
+mode: ContinuousDelivery
 tag-prefix: 'v'
 next-version: 1.0.0
 major-version-bump-message: '\+semver:\s?(breaking|major)'
