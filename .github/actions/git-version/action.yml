@@ -135,7 +135,7 @@ runs:
     id: gitversion
     uses: gittools/actions/gitversion/command@v4.1.0
     with:
-      arguments: ${{ inputs.additional-arguments }}
+      arguments: ${{ inputs.additional-arguments }} /output buildserver
   
   - name: Display GitVersion outputs (step output)
     shell: 'bash'
