@@ -84,7 +84,7 @@ jobs:
       with:
         git-tool-latest: 'true'
         use-config-file: 'true'
-        pre-release: 'false'
+        pre-release: '${{ inputs.prerelease }}'
         additional-arguments: '${{ steps.prepare_tagprefix.outputs.tag-prefix-config }}'
 
     - name: Create Major Release 
@@ -119,8 +119,8 @@ jobs:
       id: create_release
       uses: ./.github/actions/create-github-release
       with:
-        tag-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.MajorMinorPatch }}'
-        release-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.MajorMinorPatch }}'
+        tag-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.SemVer }}'
+        release-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.SemVer }}'
         commitish: '${{ github.sha }}'
         draft: false
         prerelease: ${{ inputs.prerelease }}
@@ -132,10 +132,10 @@ jobs:
       id: output-element
       shell: pwsh
       run: |
-        Write-Host "New Tag: ${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.majorMinorPatch }}"
-        Write-Host "New version: ${{ steps.gitversion.outputs.majorMinorPatch }}"
-        "# :bookmark: New Tag: ${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.majorMinorPatch }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-        "## New Version: ${{ steps.gitversion.outputs.majorMinorPatch }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+        Write-Host "New Tag: ${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.SemVer }}"
+        Write-Host "New version: ${{ steps.gitversion.outputs.SemVer }}"
+        "# :bookmark: New Tag: ${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.SemVer }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+        "## New Version: ${{ steps.gitversion.outputs.SemVer }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
         "## Branch: ${{ inputs.pr-branch-name }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
         "[View Release on GitHub](${{ steps.create_release.outputs.release-url }}) `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
 

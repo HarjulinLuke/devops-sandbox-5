@@ -2,7 +2,7 @@ name: 'Generate New Git Tags'
 run-name: PR ${{ github.event.pull_request.number }} Closed - ${{ github.event.pull_request.merged && 'Creating New Tags' || 'PR not merged - no new tags' }}
 
 on:
-  pull_request:
+  pull_request_target:
     types: [closed]
     branches: ['main', 'develop']
 
