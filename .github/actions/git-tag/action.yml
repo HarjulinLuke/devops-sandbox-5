@@ -45,21 +45,18 @@ runs:
       git config user.email "github-actions[bot]@users.noreply.github.com"
       git config user.name "github-actions[bot]"
       if (git tag --list "$fullTag") {
-        if ("${{ inputs.force }}" -eq "true") {
-          git tag -d "$fullTag"
-          git push origin ":refs/tags/$fullTag"
-        } else {
+        if ("${{ inputs.force }}" -eq "false") {
           Write-Host "Tag $fullTag already exists. Skipping creation."
           exit 0
         }
       }
       if ("${{ inputs.annotated }}" -eq "true") {
-        git tag -a "$fullTag" "$ref" -m "${{ inputs.tag-message }}"
+        git tag -f -a "$fullTag" "$ref" -m "${{ inputs.tag-message }}"
       } else {
-        git tag "$fullTag" "$ref"
+        git tag -f "$fullTag" "$ref"
       }
       if ("${{ inputs.force }}" -eq "true") {
-        git push --force origin "$fullTag"
+        git push -f origin "$fullTag"
       } else {
         git push origin "$fullTag"
       }
