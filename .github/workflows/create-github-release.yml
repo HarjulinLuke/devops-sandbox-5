@@ -111,5 +111,5 @@ jobs:
       shell: pwsh
       run: |
         Write-Host "New Tag: ${{ steps.create_release.outputs.tag-name }}"
-        "# :bookmark: New Tag: ${{ steps.create_release.outputs.tag-name }}" `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+        "# :bookmark: New Tag: ${{ steps.create_release.outputs.tag-name }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
         "# [View Release on GitHub](${{ steps.create_release.outputs.release-url }}) `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
