@@ -50,9 +50,6 @@ outputs:
   BuildMetaData:
     value: ${{ steps.gitversion.outputs.buildMetaData }}
     description: ''
-  BuildMetaDataPadded:
-    value: ${{ steps.gitversion.outputs.buildMetaDataPadded }}
-    description: ''
   FullBuildMetaData:
     value: ${{ steps.gitversion.outputs.fullBuildMetaData }}
     description: ''
@@ -61,12 +58,6 @@ outputs:
     description: ''
   SemVer:
     value: ${{ steps.gitversion.outputs.semVer }}
-    description: ''
-  LegacySemVer:
-    value: ${{ steps.gitversion.outputs.legacySemVer }}
-    description: ''
-  LegacySemVerPadded:
-    value: ${{ steps.gitversion.outputs.legacySemVerPadded }}
     description: ''
   AssemblySemVer:
     value: ${{ steps.gitversion.outputs.assemblySemVer }}
@@ -92,26 +83,11 @@ outputs:
   ShortSha:
     value: ${{ steps.gitversion.outputs.shortSha }}
     description: ''
-  NuGetVersionV2:
-    value: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
-    description: ''
-  NuGetVersion:
-    value: ${{ steps.gitversion.outputs.nuGetVersion }}
-    description: ''
-  NuGetPreReleaseTagV2:
-    value: ${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}
-    description: ''
-  NuGetPreReleaseTag:
-    value: ${{ steps.gitversion.outputs.nuGetPreReleaseTag }}
-    description: ''
   VersionSourceSha:
     value: ${{ steps.gitversion.outputs.versionSourceSha }}
     description: ''
   CommitsSinceVersionSource:
     value: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
-    description: ''
-  CommitsSinceVersionSourcePadded:
-    value: ${{ steps.gitversion.outputs.commitsSinceVersionSourcePadded }}
     description: ''
   UncommittedChanges:
     value: ${{ steps.gitversion.outputs.uncommittedChanges }}
@@ -125,87 +101,72 @@ runs:
   steps:
 
   - name: 'Install GitVersion'
-    uses: gittools/actions/gitversion/setup@v1.1.1
+    uses: gittools/actions/gitversion/setup@v4.1.0
     with:
-      versionSpec: '5.x'
+      versionSpec: '6.x'
       includePrerelease: ${{ inputs.pre-release }}
       preferLatestVersion: ${{ inputs.git-tool-latest }}
   
   - name: "Determine Version"
     id: gitversion
-    uses: gittools/actions/gitversion/execute@v1.1.1
+    uses: gittools/actions/gitversion/command@v4.1.0
     with:
-      useConfigFile: ${{ inputs.use-config-file }}
-      additionalArguments: ${{ inputs.additional-arguments }}
+      arguments: ${{ inputs.additional-arguments }} /output buildserver
   
-  - name: Display GitVersion outputs (step output)
-    shell: 'bash'
-    run: |
-      echo "Major: ${{ steps.gitversion.outputs.major }}"
-      echo "Minor: ${{ steps.gitversion.outputs.minor }}"
-      echo "Patch: ${{ steps.gitversion.outputs.patch }}"
-      echo "PreReleaseTag: ${{ steps.gitversion.outputs.preReleaseTag }}"
-      echo "PreReleaseTagWithDash: ${{ steps.gitversion.outputs.preReleaseTagWithDash }}"
-      echo "PreReleaseLabel: ${{ steps.gitversion.outputs.preReleaseLabel }}"
-      echo "PreReleaseNumber: ${{ steps.gitversion.outputs.preReleaseNumber }}"
-      echo "WeightedPreReleaseNumber: ${{ steps.gitversion.outputs.weightedPreReleaseNumber }}"
-      echo "BuildMetaData: ${{ steps.gitversion.outputs.buildMetaData }}"
-      echo "BuildMetaDataPadded: ${{ steps.gitversion.outputs.buildMetaDataPadded }}"
-      echo "FullBuildMetaData: ${{ steps.gitversion.outputs.fullBuildMetaData }}"
-      echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
-      echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
-      echo "LegacySemVer: ${{ steps.gitversion.outputs.legacySemVer }}"
-      echo "LegacySemVerPadded: ${{ steps.gitversion.outputs.legacySemVerPadded }}"
-      echo "AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}"
-      echo "AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}"
-      echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
-      echo "InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}"
-      echo "BranchName: ${{ steps.gitversion.outputs.branchName }}"
-      echo "EscapedBranchName: ${{ steps.gitversion.outputs.escapedBranchName }}"
-      echo "Sha: ${{ steps.gitversion.outputs.sha }}"
-      echo "ShortSha: ${{ steps.gitversion.outputs.shortSha }}"
-      echo "NuGetVersionV2: ${{ steps.gitversion.outputs.nuGetVersionV2 }}"
-      echo "NuGetVersion: ${{ steps.gitversion.outputs.nuGetVersion }}"
-      echo "NuGetPreReleaseTagV2: ${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
-      echo "NuGetPreReleaseTag: ${{ steps.gitversion.outputs.nuGetPreReleaseTag }}"
-      echo "VersionSourceSha: ${{ steps.gitversion.outputs.versionSourceSha }}"
-      echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}"
-      echo "CommitsSinceVersionSourcePadded: ${{ steps.gitversion.outputs.commitsSinceVersionSourcePadded }}"
-      echo "UncommittedChanges: ${{ steps.gitversion.outputs.uncommittedChanges }}"
-      echo "CommitDate: ${{ steps.gitversion.outputs.commitDate }}"
-
   - name: Display GitVersion outputs (step output with prefix)
     shell: 'bash'
     run: |
-      echo "Major: ${{ steps.gitversion.outputs.GitVersion_Major }}"
-      echo "Minor: ${{ steps.gitversion.outputs.GitVersion_Minor }}"
-      echo "Patch: ${{ steps.gitversion.outputs.GitVersion_Patch }}"
-      echo "PreReleaseTag: ${{ steps.gitversion.outputs.GitVersion_PreReleaseTag }}"
-      echo "PreReleaseTagWithDash: ${{ steps.gitversion.outputs.GitVersion_PreReleaseTagWithDash }}"
-      echo "PreReleaseLabel: ${{ steps.gitversion.outputs.GitVersion_PreReleaseLabel }}"
-      echo "PreReleaseNumber: ${{ steps.gitversion.outputs.GitVersion_PreReleaseNumber }}"
-      echo "WeightedPreReleaseNumber: ${{ steps.gitversion.outputs.GitVersion_WeightedPreReleaseNumber }}"
-      echo "BuildMetaData: ${{ steps.gitversion.outputs.GitVersion_BuildMetaData }}"
-      echo "BuildMetaDataPadded: ${{ steps.gitversion.outputs.GitVersion_BuildMetaDataPadded }}"
-      echo "FullBuildMetaData: ${{ steps.gitversion.outputs.GitVersion_FullBuildMetaData }}"
-      echo "MajorMinorPatch: ${{ steps.gitversion.outputs.GitVersion_MajorMinorPatch }}"
-      echo "SemVer: ${{ steps.gitversion.outputs.GitVersion_SemVer }}"
-      echo "LegacySemVer: ${{ steps.gitversion.outputs.GitVersion_LegacySemVer }}"
-      echo "LegacySemVerPadded: ${{ steps.gitversion.outputs.GitVersion_LegacySemVerPadded }}"
-      echo "AssemblySemVer: ${{ steps.gitversion.outputs.GitVersion_AssemblySemVer }}"
-      echo "AssemblySemFileVer: ${{ steps.gitversion.outputs.GitVersion_AssemblySemFileVer }}"
-      echo "FullSemVer: ${{ steps.gitversion.outputs.GitVersion_FullSemVer }}"
-      echo "InformationalVersion: ${{ steps.gitversion.outputs.GitVersion_InformationalVersion }}"
-      echo "BranchName: ${{ steps.gitversion.outputs.GitVersion_BranchName }}"
-      echo "EscapedBranchName: ${{ steps.gitversion.outputs.GitVersion_EscapedBranchName }}"
-      echo "Sha: ${{ steps.gitversion.outputs.GitVersion_Sha }}"
-      echo "ShortSha: ${{ steps.gitversion.outputs.GitVersion_ShortSha }}"
-      echo "NuGetVersionV2: ${{ steps.gitversion.outputs.GitVersion_NuGetVersionV2 }}"
-      echo "NuGetVersion: ${{ steps.gitversion.outputs.GitVersion_NuGetVersion }}"
-      echo "NuGetPreReleaseTagV2: ${{ steps.gitversion.outputs.GitVersion_NuGetPreReleaseTagV2 }}"
-      echo "NuGetPreReleaseTag: ${{ steps.gitversion.outputs.GitVersion_NuGetPreReleaseTag }}"
-      echo "VersionSourceSha: ${{ steps.gitversion.outputs.GitVersion_VersionSourceSha }}"
-      echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.GitVersion_CommitsSinceVersionSource }}"
-      echo "CommitsSinceVersionSourcePadded: ${{ steps.gitversion.outputs.GitVersion_CommitsSinceVersionSourcePadded }}"
-      echo "UncommittedChanges: ${{ steps.gitversion.outputs.GitVersion_UncommittedChanges }}"
-      echo "CommitDate: ${{ steps.gitversion.outputs.GitVersion_CommitDate }}"
+      echo "Major: ${{ env.GitVersion_Major }}"
+      echo "Minor: ${{ env.GitVersion_Minor }}"
+      echo "Patch: ${{ env.GitVersion_Patch }}"
+      echo "PreReleaseTag: ${{ env.GitVersion_PreReleaseTag }}"
+      echo "PreReleaseTagWithDash: ${{ env.GitVersion_PreReleaseTagWithDash }}"
+      echo "PreReleaseLabel: ${{ env.GitVersion_PreReleaseLabel }}"
+      echo "PreReleaseNumber: ${{ env.GitVersion_PreReleaseNumber }}"
+      echo "WeightedPreReleaseNumber: ${{ env.GitVersion_WeightedPreReleaseNumber }}"
+      echo "BuildMetaData: ${{ env.GitVersion_BuildMetaData }}"
+      echo "FullBuildMetaData: ${{ env.GitVersion_FullBuildMetaData }}"
+      echo "MajorMinorPatch: ${{ env.GitVersion_MajorMinorPatch }}"
+      echo "SemVer: ${{ env.GitVersion_SemVer }}"
+      echo "AssemblySemVer: ${{ env.GitVersion_AssemblySemVer }}"
+      echo "AssemblySemFileVer: ${{ env.GitVersion_AssemblySemFileVer }}"
+      echo "FullSemVer: ${{ env.GitVersion_FullSemVer }}"
+      echo "InformationalVersion: ${{ env.GitVersion_InformationalVersion }}"
+      echo "BranchName: ${{ env.GitVersion_BranchName }}"
+      echo "EscapedBranchName: ${{ env.GitVersion_EscapedBranchName }}"
+      echo "Sha: ${{ env.GitVersion_Sha }}"
+      echo "ShortSha: ${{ env.GitVersion_ShortSha }}"
+      echo "VersionSourceSha: ${{ env.GitVersion_VersionSourceSha }}"
+      echo "CommitsSinceVersionSource: ${{ env.GitVersion_CommitsSinceVersionSource }}"
+      echo "UncommittedChanges: ${{ env.GitVersion_UncommittedChanges }}"
+      echo "CommitDate: ${{ env.GitVersion_CommitDate }}"
+
+  - name: Output GitVersion results
+    id: output-gitversion
+    shell: pwsh
+    run: |
+      "major=$env:GitVersion_Major" >> $env:GITHUB_OUTPUT
+      "minor=$env:GitVersion_Minor" >> $env:GITHUB_OUTPUT
+      "patch=$env:GitVersion_Patch" >> $env:GITHUB_OUTPUT
+      "preReleaseTag=$env:GitVersion_PreReleaseTag" >> $env:GITHUB_OUTPUT
+      "preReleaseTagWithDash=$env:GitVersion_PreReleaseTagWithDash" >> $env:GITHUB_OUTPUT
+      "preReleaseLabel=$env:GitVersion_PreReleaseLabel" >> $env:GITHUB_OUTPUT
+      "preReleaseNumber=$env:GitVersion_PreReleaseNumber" >> $env:GITHUB_OUTPUT
+      "weightedPreReleaseNumber=$env:GitVersion_WeightedPreReleaseNumber" >> $env:GITHUB_OUTPUT
+      "buildMetaData=$env:GitVersion_BuildMetaData" >> $env:GITHUB_OUTPUT
+      "fullBuildMetaData=$env:GitVersion_FullBuildMetaData" >> $env:GITHUB_OUTPUT
+      "majorMinorPatch=$env:GitVersion_MajorMinorPatch" >> $env:GITHUB_OUTPUT
+      "semVer=$env:GitVersion_SemVer" >> $env:GITHUB_OUTPUT
+      "assemblySemVer=$env:GitVersion_AssemblySemVer" >> $env:GITHUB_OUTPUT
+      "assemblySemFileVer=$env:GitVersion_AssemblySemFileVer" >> $env:GITHUB_OUTPUT
+      "fullSemVer=$env:GitVersion_FullSemVer" >> $env:GITHUB_OUTPUT
+      "informationalVersion=$env:GitVersion_InformationalVersion" >> $env:GITHUB_OUTPUT
+      "branchName=$env:GitVersion_BranchName" >> $env:GITHUB_OUTPUT
+      "escapedBranchName=$env:GitVersion_EscapedBranchName" >> $env:GITHUB_OUTPUT
+      "sha=$env:GitVersion_Sha" >> $env:GITHUB_OUTPUT
+      "shortSha=$env:GitVersion_ShortSha" >> $env:GITHUB_OUTPUT
+      "versionSourceSha=$env:GitVersion_VersionSourceSha" >> $env:GITHUB_OUTPUT
+      "commitsSinceVersionSource=$env:GitVersion_CommitsSinceVersionSource" >> $env:GITHUB_OUTPUT
+      "uncommittedChanges=$env:GitVersion_UncommittedChanges" >> $env:GITHUB_OUTPUT
+      "commitDate=$env:GitVersion_CommitDate" >> $env:GITHUB_OUTPUT
+      Write-Host "GitVersion outputs set."

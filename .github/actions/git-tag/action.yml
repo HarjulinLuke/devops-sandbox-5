@@ -1,0 +1,65 @@
+name: 'Create and Push Git Tag'
+description: 'Creates and pushes a git tag using the GitHub Actions bot'
+
+inputs:
+  tag-name:
+    description: 'The name of the tag to create (if including prefix here, do not use tag-prefix)'
+    required: true
+  tag-prefix:
+    description: 'Prefix to prepend to the tag name (e.g., "v")'
+    required: false
+    default: ''
+  tag-message:
+    description: 'The message for the tag'
+    required: false
+    default: 'Created by GitHub Actions bot via https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+  force:
+    description: 'Force update the tag if it already exists'
+    required: false
+    default: 'false'
+  annotated:
+    description: 'Create an annotated tag (true) or lightweight tag (false)'
+    required: false
+    default: 'true'
+  ref:
+    description: 'The commit SHA, branch, or ref to tag (default: HEAD)'
+    required: false
+    default: 'HEAD'
+  token:
+    description: 'GitHub token to use for authentication'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - name: Checkout code
+    uses: actions/checkout@v4
+
+  - name: Create and push tag
+    shell: pwsh
+    env:
+      GH_TOKEN: ${{ inputs.token }}
+    run: |
+      $fullTag = "${{ inputs.tag-prefix }}${{ inputs.tag-name }}"
+      $ref = "${{ inputs.ref }}"
+      git config user.email "github-actions[bot]@users.noreply.github.com"
+      git config user.name "github-actions[bot]"
+      if (git tag --list "$fullTag") {
+        if ("${{ inputs.force }}" -eq "true") {
+          git tag -d "$fullTag"
+          git push origin ":refs/tags/$fullTag"
+        } else {
+          Write-Host "Tag $fullTag already exists. Skipping creation."
+          exit 0
+        }
+      }
+      if ("${{ inputs.annotated }}" -eq "true") {
+        git tag -a "$fullTag" "$ref" -m "${{ inputs.tag-message }}"
+      } else {
+        git tag "$fullTag" "$ref"
+      }
+      if ("${{ inputs.force }}" -eq "true") {
+        git push --force origin "$fullTag"
+      } else {
+        git push origin "$fullTag"
+      }

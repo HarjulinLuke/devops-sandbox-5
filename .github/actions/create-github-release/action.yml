@@ -96,16 +96,16 @@ runs:
       Write-Output "command: gh release create $args"
       iex "gh release create $args"
 
-  - name: Update Existing Release With New Ref
-    shell: 'pwsh'
+  - name: Update Existing Release/Tag
+    uses: ./.github/actions/git-tag
     if: ${{ steps.get_release.outputs.release_exists  == 'true' }}
-    env:
-      GH_TOKEN: ${{ inputs.token }}
-    run: |
-      git config user.email "github-actions[bot]@users.noreply.github.com"
-      git config user.name "github-actions[bot]"
-      git tag -f ${{ inputs.tag-name }} ${{ inputs.commitish }}
-      git push origin -f  ${{ inputs.tag-name }}
+    with:
+      tag-name: ${{ inputs.tag-name }}
+      tag-message: "Updated by GitHub Actions bot to point to latest relevant commit ${{ inputs.commitish }}"
+      force: 'true'
+      annotated: 'true'
+      ref: ${{ inputs.commitish }}
+      token: ${{ inputs.token }}
 
   - name: Output Release URL
     id: output-release-url
