@@ -7,12 +7,12 @@ on:
         description: 'PR Number'
         required: false
         type: string
-        default: '${{ github.event.pull_request_target.number }}'
+        default: '${{ github.event.pull_request.number }}'
       pr-branch-name:
         description: 'PR Branch Name'
         required: false
         type: string
-        default: '${{ github.event.pull_request_target.head.ref }}'
+        default: '${{ github.event.pull_request.head.ref }}'
       tag-prefix:
         description: "Prefix for the tag. Default is empty"
         required: false
@@ -119,8 +119,8 @@ jobs:
       id: create_release
       uses: ./.github/actions/create-github-release
       with:
-        tag-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.SemVer }}'
-        release-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.SemVer }}'
+        tag-name: ${{ inputs.tag-prefix }}${{ inputs.prerelease == 'true' && steps.gitversion.outputs.SemVer || steps.gitversion.outputs.MajorMinorPatch }}
+        release-name: ${{ inputs.tag-prefix }}${{ inputs.prerelease == 'true' && steps.gitversion.outputs.SemVer || steps.gitversion.outputs.MajorMinorPatch }}
         commitish: '${{ github.sha }}'
         draft: false
         prerelease: ${{ inputs.prerelease }}
@@ -132,10 +132,8 @@ jobs:
       id: output-element
       shell: pwsh
       run: |
-        Write-Host "New Tag: ${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.SemVer }}"
-        Write-Host "New version: ${{ steps.gitversion.outputs.SemVer }}"
+        Write-Host "New Tag: ${{ steps.create_release.outputs.tag-name }}"
         "# :bookmark: New Tag: ${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.SemVer }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-        "## New Version: ${{ steps.gitversion.outputs.SemVer }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
         "## Branch: ${{ inputs.pr-branch-name }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
         "[View Release on GitHub](${{ steps.create_release.outputs.release-url }}) `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
 

@@ -49,6 +49,12 @@ outputs:
   release-url:
     description: 'The URL of the created release.'
     value: ${{ steps.output-release-url.outputs.release-url }}
+  release-name:
+    description: 'The name of the created release.'
+    value: ${{ inputs.release-name }}
+  tag-name:
+    description: 'The tag name of the created release.'
+    value: ${{ inputs.tag-name }}
 
 runs:
   using: 'composite'
