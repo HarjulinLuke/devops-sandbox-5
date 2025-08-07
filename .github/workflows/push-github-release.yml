@@ -1,5 +1,8 @@
-name: 'Create New Release'
-description: 'Create a new GitHub release using GitVersion after a PR is closed and merged.'
+name: 'Pushes A New GitHub Release'
+description: |
+  This workflow creates a new GitHub release based on the latest tag using the GitVersion tool.
+  It can create/update existing releases and supports both major and major.minor versioning. 
+
 on:
   workflow_call:
     inputs:
@@ -11,28 +14,23 @@ on:
       create-major-minor:
         description: "Option to create Major Minor Versioning"
         required: false
-        type: string
-        default: 'true'
+        type: boolean
+        default: true
       create-major:
         description: "Option to create Major Version"
         required: false
-        type: string
-        default: 'true'
-      delete-merged-branch:
-        description: "Option to delete merged branch"
-        required: false
-        type: string
-        default: 'true'
+        type: boolean
+        default: true
       prerelease:
         description: "Option to create a pre-release"
         required: false
-        type: string
-        default: 'false'
+        type: boolean
+        default: false
       generate-notes:
         description: "Option to auto-generate release notes"
         required: false
-        type: string
-        default: 'true'
+        type: boolean
+        default: true
 
 permissions:
   id-token: write
@@ -49,13 +47,6 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Prepare gitversion tagprefix
-      id: prepare_tagprefix
-      shell: pwsh
-      run: |
-        if ("${{ inputs.tag-prefix }}" -ne "") {
-          "tag-prefix-config=/overrideconfig tag-prefix=${{ inputs.tag-prefix }}" >> $env:GITHUB_OUTPUT
-        }
     - name: Get Next Tag
       id: gitversion
       uses: ./.github/actions/git-version
@@ -63,11 +54,11 @@ jobs:
         git-tool-latest: 'true'
         use-config-file: 'true'
         pre-release: '${{ inputs.prerelease }}'
-        additional-arguments: '${{ steps.prepare_tagprefix.outputs.tag-prefix-config }}'
+        additional-arguments: ${{ inputs.tag-prefix != '' && format('/overrideconfig tag-prefix={0}', inputs.tag-prefix) || '' }}
 
     - name: Create Major Release 
       id: create_major_release
-      if: ${{ inputs.create-major == 'true' && inputs.prerelease == 'false' }}
+      if: ${{ inputs.create-major == true && inputs.prerelease == false }}
       uses: ./.github/actions/create-github-release
       with:
         tag-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.Major }}'
@@ -81,7 +72,7 @@ jobs:
 
     - name: Create Major Minor Release 
       id: create_majorminor_release
-      if: ${{ inputs.create-major-minor == 'true' && inputs.prerelease == 'false' }}
+      if: ${{ inputs.create-major-minor == true && inputs.prerelease == false }}
       uses: ./.github/actions/create-github-release
       with:
         tag-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.Major }}.${{ steps.gitversion.outputs.Minor }}'
@@ -97,8 +88,8 @@ jobs:
       id: create_release
       uses: ./.github/actions/create-github-release
       with:
-        tag-name: ${{ inputs.tag-prefix }}${{ inputs.prerelease == 'true' && steps.gitversion.outputs.SemVer || steps.gitversion.outputs.MajorMinorPatch }}
-        release-name: ${{ inputs.tag-prefix }}${{ inputs.prerelease == 'true' && steps.gitversion.outputs.SemVer || steps.gitversion.outputs.MajorMinorPatch }}
+        tag-name: ${{ inputs.tag-prefix }}${{ inputs.prerelease == true && steps.gitversion.outputs.SemVer || steps.gitversion.outputs.MajorMinorPatch }}
+        release-name: ${{ inputs.tag-prefix }}${{ inputs.prerelease == true && steps.gitversion.outputs.SemVer || steps.gitversion.outputs.MajorMinorPatch }}
         commitish: '${{ github.sha }}'
         draft: false
         prerelease: ${{ inputs.prerelease }}

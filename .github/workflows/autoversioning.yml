@@ -11,10 +11,9 @@ permissions:
   pull-requests: read
 
 jobs:
-      
   CreateNextRelease:
     name: 'Creating Next Github Release'
-    uses: ./.github/workflows/create-github-release.yml
+    uses: ./.github/workflows/push-github-release.yml
     with:
       create-major-minor: ${{ github.ref_name == 'main' }}
       create-major: ${{ github.ref_name == 'main' }}
