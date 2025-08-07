@@ -31,18 +31,18 @@ on:
       delete-merged-branch:
         description: "Option to delete merged branch"
         required: false
-        type: boolean
-        default: true
+        type: string
+        default: 'true'
       prerelease:
         description: "Option to create a pre-release"
         required: false
-        type: boolean
-        default: false
+        type: string
+        default: 'false'
       generate-notes:
         description: "Option to auto-generate release notes"
         required: false
-        type: boolean
-        default: true
+        type: string
+        default: 'true'
 
 permissions:
   id-token: write
@@ -140,7 +140,7 @@ jobs:
         "[View Release on GitHub](${{ steps.create_release.outputs.release-url }}) `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
 
     # - name: Delete Merged Branch
-    #   if: ${{ inputs.delete-merged-branch == true }}
+    #   if: ${{ inputs.delete-merged-branch == 'true' }}
     #   shell: 'pwsh'
     #   run: | 
     #     if ('${{ inputs.pr-branch-name }}' -ne '${{ github.event.repository.default_branch }}') {
