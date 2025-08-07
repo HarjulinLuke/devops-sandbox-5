@@ -20,7 +20,7 @@ strategies:
 - VersionInBranchName
 branches:
   develop:
-    mode: ContinuousDelivery
+    mode: ManualDeployment
     label: alpha
     increment: Minor
     prevent-increment:
@@ -36,6 +36,7 @@ branches:
     is-main-branch: false
     pre-release-weight: 0
   main:
+    mode: ContinuousDeployment
     label: ''
     increment: Patch
     prevent-increment:
@@ -57,7 +58,7 @@ branches:
       of-merged-branch: true
       when-current-commit-tagged: false
     track-merge-target: false
-    regex: ^releases?[\/-](?<BranchName>.+)
+    regex: ^(releases?|rc|RC)[\/-](?<BranchName>.+)
     source-branches:
     - main
     - support
