@@ -1,0 +1,100 @@
+name: Sync a Branch with Main
+
+inputs:
+  branch:
+    required: true
+    description: 'Branch that needs synchronization with main'
+  gh_app_id:
+    required: true
+    description: 'GitHub App ID to perform actions.'
+  gh_app_key:
+    required: true
+    description: 'GitHub App Key to perform actions.'
+    sensitive: true
+
+
+runs:
+  using: composite
+  steps:
+  - name: Check diff
+    id: check-diff
+    shell: pwsh
+    run: |
+      git config --global user.name "github-actions[bot]"
+      git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      
+      git fetch origin ${{ inputs.branch }}
+      $diff = git diff origin/${{ inputs.branch }}
+      if ($diff -eq $null) {
+        "# No difference between main and ${{ inputs.branch }}" >> $env:GITHUB_STEP_SUMMARY
+      }
+
+  - name: Check if PR already exists
+    id: check-pr-exists
+    shell: pwsh
+    env:
+      GH_TOKEN: ${{ github.token }}
+    run: |
+      $prList = gh pr list --base ${{ inputs.branch }} --head main --state open --json url | ConvertFrom-Json
+      
+      if ($prList.Count -eq 0) {
+        "PR=" >> $env:GITHUB_ENV
+        "# New PR between main and ${{ inputs.branch }}" >> $env:GITHUB_STEP_SUMMARY
+      }
+      else {
+        "PR=$($prList.url)" >> $env:GITHUB_ENV
+        "# PR already exists" >> $env:GITHUB_STEP_SUMMARY
+        "Link to PR syncing main and ${{ inputs.branch }}: $($prList.url)" >> $env:GITHUB_STEP_SUMMARY
+      }
+
+  - name: Create PR to sync ${{ inputs.branch }} with main
+    if: ${{ env.PR == '' }}
+    id: create-pr
+    shell: pwsh
+    env:
+      GH_TOKEN: ${{ github.token }}
+    run: |
+      git config --global user.name "github-actions[bot]"
+      git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      git fetch origin ${{ inputs.branch }}
+      git merge --no-commit --no-ff origin/${{ inputs.branch }}
+      if ($? -eq $true) {
+        Write-Host "Creating PR to merge main into ${{ inputs.branch }}..."
+        git merge --abort
+        $pr = gh pr create --base ${{ inputs.branch }} --head main --title "Sync ${{ inputs.branch }} with main" --body "Please review and merge changes."
+        "conflict=false" >> $env:GITHUB_OUTPUT
+        "Link to PR syncing main and ${{ inputs.branch }}: $pr" >> $env:GITHUB_STEP_SUMMARY
+      }
+      else {
+        Write-Host "Merge conflict(s) detected. Creating PR for user to resolve..."
+        git merge --abort
+        if ("${{ inputs.branch }}" -like "release/*") {
+          $branchType = "release"
+        } else {
+          $branchType = "develop" 
+        }
+        git checkout -b conflict/main-$branchType
+        git push --set-upstream origin conflict/main-$branchType
+        $pr = gh pr create --base ${{ inputs.branch }} --head conflict/main-$branchType --title "Sync ${{ inputs.branch }} with main (conflict)" --body "Please resolve merge conflicts."
+        "conflict=true" >> $env:GITHUB_OUTPUT
+        "Conflict in merge. Link to PR: $pr" >> $env:GITHUB_STEP_SUMMARY
+      }
+      "PR=$pr" >> $env:GITHUB_ENV
+
+  - name: Generate SA access token
+    if: ${{ steps.create-pr.outputs.conflict != 'true' }}
+    id: generate-token
+    uses: actions/create-github-app-token@v1
+    with:
+      app-id: ${{ inputs.gh_app_id }}
+      private-key: ${{ inputs.gh_app_key }}
+
+  - name: Approve PR and enable auto-merge
+    if: ${{ steps.create-pr.outputs.conflict != 'true' }}
+    shell: pwsh
+    env:
+      GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+    run: |
+      gh pr review ${{ env.PR }} --approve
+      gh pr merge ${{ env.PR }} --merge --auto
