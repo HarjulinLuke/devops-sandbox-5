@@ -1,10 +1,10 @@
-name: 'Generate New Version'
+name: 'Generate New Git Tags'
 run-name: PR ${{ github.event.pull_request.number }} Closed - ${{ github.event.pull_request.merged && 'Creating New Tags' || 'PR not merged - no new tags' }}
 
 on:
   pull_request:
     types: [closed]
-    branches: ['main']
+    branches: ['main', 'develop']
 
 permissions:
   id-token: write
@@ -20,3 +20,5 @@ jobs:
       create-major-minor: true
       create-major: true
       tag-prefix: 'v'
+      prerelease: ${{ github.ref_name != 'main' && 'true' || 'false' }}
+      generate-notes: true
