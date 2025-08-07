@@ -52,7 +52,7 @@ permissions:
 jobs:
   CreateNewReleaseVersion:
     name: 'Create New Tags'
-    if: github.event_name == 'pull_request_target' && github.event.pull_request_target.merged
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
     runs-on: 'ubuntu-latest'
     steps:
     - name: Checkout
