@@ -1,0 +1,68 @@
+name: Sync Branches With Main
+run-name: Synchronizing branches with new changes on main
+
+on:
+  workflow_run:
+    workflows: ["Generate New Git Tags"]
+    types: [completed]
+    branches:
+      - 'main'
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  SyncDevelopWithMain:
+    name: Sync develop with main
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Sync develop with main
+      id: sync-develop
+      uses: ./.github/actions/sync-branch-with-main
+      with:
+        branch: develop
+        gh_app_id: ${{ vars.GH_APP_ID }}
+        gh_app_key: ${{ secrets.GH_APP_KEY }}
+
+  SyncReleaseWithMain:
+    name: Sync release with main
+    runs-on: ubuntu-latest
+    needs: [SyncDevelopWithMain]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Check if active release branch exists
+      id: check-release-exists
+      shell: pwsh
+      run: |
+        git fetch -a
+        $releaseBranch = git branch --list --remote origin/release/*
+        if ($releaseBranch -eq $null) {
+          Write-Host "No active release branch found."
+          "# No active release branch found." >> $env:GITHUB_STEP_SUMMARY
+          "releaseExists=false" >> $env:GITHUB_OUTPUT
+        }
+        else {
+          Write-Host "Active release branch found."
+          "releaseExists=true" >> $env:GITHUB_OUTPUT
+          "releaseBranch=$($releaseBranch.Replace('origin/', '').Trim())" >> $env:GITHUB_OUTPUT
+        }
+
+    - name: Sync release with main
+      if: ${{ steps.check-release-exists.outputs.releaseExists == 'true' }}
+      id: sync-release
+      uses: ./.github/actions/sync-branch-with-main
+      with:
+        branch: ${{ steps.check-release-exists.outputs.releaseBranch }}
+        gh_app_id: ${{ vars.GH_APP_ID }}
+        gh_app_key: ${{ secrets.GH_APP_KEY }}
