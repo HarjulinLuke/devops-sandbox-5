@@ -20,5 +20,5 @@ jobs:
       create-major-minor: true
       create-major: true
       tag-prefix: 'v'
-      prerelease: ${{ github.ref_name != 'main' && 'true' || 'false' }}
+      prerelease: ${{ github.ref_name != 'main' }}
       generate-notes: true
