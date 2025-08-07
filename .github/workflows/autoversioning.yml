@@ -20,4 +20,4 @@ jobs:
       create-major: ${{ github.ref_name == 'main' }}
       tag-prefix: 'v'
       prerelease: ${{ github.ref_name != 'main' }}
-      generate-notes: true
+      generate-notes: ${{ github.ref_name == 'main' }}
