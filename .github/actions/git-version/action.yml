@@ -24,76 +24,76 @@ inputs:
   
 outputs:
   Major:
-    value: ${{ steps.gitversion.outputs.major }}
+    value: ${{ steps.output-gitversion.outputs.major }}
     description: ''
   Minor:
-    value: ${{ steps.gitversion.outputs.minor }}
+    value: ${{ steps.output-gitversion.outputs.minor }}
     description: ''
   Patch:
-    value: ${{ steps.gitversion.outputs.patch }}
+    value: ${{ steps.output-gitversion.outputs.patch }}
     description: ''
   PreReleaseTag:
-    value: ${{ steps.gitversion.outputs.preReleaseTag }}
+    value: ${{ steps.output-gitversion.outputs.preReleaseTag }}
     description: ''
   PreReleaseTagWithDash:
-    value: ${{ steps.gitversion.outputs.preReleaseTagWithDash }}
+    value: ${{ steps.output-gitversion.outputs.preReleaseTagWithDash }}
     description: ''
   PreReleaseLabel:
-    value: ${{ steps.gitversion.outputs.preReleaseLabel }}
+    value: ${{ steps.output-gitversion.outputs.preReleaseLabel }}
     description: ''
   PreReleaseNumber:
-    value: ${{ steps.gitversion.outputs.preReleaseNumber }}
+    value: ${{ steps.output-gitversion.outputs.preReleaseNumber }}
     description: ''
   WeightedPreReleaseNumber:
-    value: ${{ steps.gitversion.outputs.weightedPreReleaseNumber }}
+    value: ${{ steps.output-gitversion.outputs.weightedPreReleaseNumber }}
     description: ''
   BuildMetaData:
-    value: ${{ steps.gitversion.outputs.buildMetaData }}
+    value: ${{ steps.output-gitversion.outputs.buildMetaData }}
     description: ''
   FullBuildMetaData:
-    value: ${{ steps.gitversion.outputs.fullBuildMetaData }}
+    value: ${{ steps.output-gitversion.outputs.fullBuildMetaData }}
     description: ''
   MajorMinorPatch:
-    value: ${{ steps.gitversion.outputs.majorMinorPatch }}
+    value: ${{ steps.output-gitversion.outputs.majorMinorPatch }}
     description: ''
   SemVer:
-    value: ${{ steps.gitversion.outputs.semVer }}
+    value: ${{ steps.output-gitversion.outputs.semVer }}
     description: ''
   AssemblySemVer:
-    value: ${{ steps.gitversion.outputs.assemblySemVer }}
+    value: ${{ steps.output-gitversion.outputs.assemblySemVer }}
     description: ''
   AssemblySemFileVer:
-    value: ${{ steps.gitversion.outputs.assemblySemFileVer }}
+    value: ${{ steps.output-gitversion.outputs.assemblySemFileVer }}
     description: ''
   FullSemVer:
-    value: ${{ steps.gitversion.outputs.fullSemVer }}
+    value: ${{ steps.output-gitversion.outputs.fullSemVer }}
     description: ''
   InformationalVersion:
-    value: ${{ steps.gitversion.outputs.informationalVersion }}
+    value: ${{ steps.output-gitversion.outputs.informationalVersion }}
     description: ''
   BranchName:
-    value: ${{ steps.gitversion.outputs.branchName }}
+    value: ${{ steps.output-gitversion.outputs.branchName }}
     description: ''
   EscapedBranchName:
-    value: ${{ steps.gitversion.outputs.escapedBranchName }}
+    value: ${{ steps.output-gitversion.outputs.escapedBranchName }}
     description: ''
   Sha:
-    value: ${{ steps.gitversion.outputs.sha }}
+    value: ${{ steps.output-gitversion.outputs.sha }}
     description: ''
   ShortSha:
-    value: ${{ steps.gitversion.outputs.shortSha }}
+    value: ${{ steps.output-gitversion.outputs.shortSha }}
     description: ''
   VersionSourceSha:
-    value: ${{ steps.gitversion.outputs.versionSourceSha }}
+    value: ${{ steps.output-gitversion.outputs.versionSourceSha }}
     description: ''
   CommitsSinceVersionSource:
-    value: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+    value: ${{ steps.output-gitversion.outputs.commitsSinceVersionSource }}
     description: ''
   UncommittedChanges:
-    value: ${{ steps.gitversion.outputs.uncommittedChanges }}
+    value: ${{ steps.output-gitversion.outputs.uncommittedChanges }}
     description: ''
   CommitDate:
-    value: ${{ steps.gitversion.outputs.commitDate }}
+    value: ${{ steps.output-gitversion.outputs.commitDate }}
     description: ''
 
 runs:
