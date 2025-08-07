@@ -1,10 +1,9 @@
 name: 'Generate New Git Tags'
-run-name: PR ${{ github.event.pull_request.number }} Closed - ${{ github.event.pull_request.merged && 'Creating New Tags' || 'PR not merged - no new tags' }}
+run-name: New ${{ github.ref_name == 'main' && 'Release' || 'Prerelease' }} Version
 
 on:
-  pull_request_target:
-    types: [closed]
-    branches: ['main', 'develop']
+  push:
+    branches: ['main', 'develop', 'release/*', 'hotfix/*']
 
 permissions:
   id-token: write
@@ -17,8 +16,8 @@ jobs:
     name: 'Creating Next Github Release'
     uses: ./.github/workflows/create-github-release.yml
     with:
-      create-major-minor: true
-      create-major: true
+      create-major-minor: ${{ github.ref_name == 'main' }}
+      create-major: ${{ github.ref_name == 'main' }}
       tag-prefix: 'v'
       prerelease: ${{ github.ref_name != 'main' }}
       generate-notes: true
