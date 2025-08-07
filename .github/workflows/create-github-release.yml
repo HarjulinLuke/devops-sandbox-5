@@ -1,5 +1,5 @@
 name: 'Create New Release'
-
+description: 'Create a new GitHub release using GitVersion after a PR is closed and merged.'
 on:
   workflow_call:
     inputs:
@@ -7,12 +7,12 @@ on:
         description: 'PR Number'
         required: false
         type: string
-        default: '${{ github.event.pull_request.number }}'
+        default: '${{ github.event.pull_request_target.number }}'
       pr-branch-name:
         description: 'PR Branch Name'
         required: false
         type: string
-        default: '${{ github.event.pull_request.head.ref }}'
+        default: '${{ github.event.pull_request_target.head.ref }}'
       tag-prefix:
         description: "Prefix for the tag. Default is empty"
         required: false
@@ -33,6 +33,16 @@ on:
         required: false
         type: boolean
         default: true
+      prerelease:
+        description: "Option to create a pre-release"
+        required: false
+        type: boolean
+        default: false
+      generate-notes:
+        description: "Option to auto-generate release notes"
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   id-token: write
@@ -42,7 +52,7 @@ permissions:
 jobs:
   CreateNewReleaseVersion:
     name: 'Create New Tags'
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
     runs-on: 'ubuntu-latest'
     steps:
     - name: Checkout
@@ -50,16 +60,16 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Restore PR Branch
-      uses: ./.github/actions/restore-pr-branch
-      id: restore-pr-branch
-      with:
-        pr-number: ${{ inputs.pr-number }}
-        pr-branch-name: ${{ inputs.pr-branch-name }}
-        repo-owner: ${{ github.repository_owner }}
-        repo-name: ${{ github.event.repository.name }}
-        github-token: ${{ github.token }}
-        checkout-pr-branch: 'true'
+    # - name: Restore PR Branch
+    #   uses: ./.github/actions/restore-pr-branch
+    #   id: restore-pr-branch
+    #   with:
+    #     pr-number: ${{ inputs.pr-number }}
+    #     pr-branch-name: ${{ inputs.pr-branch-name }}
+    #     repo-owner: ${{ github.repository_owner }}
+    #     repo-name: ${{ github.event.repository.name }}
+    #     github-token: ${{ github.token }}
+    #     checkout-pr-branch: 'true'
 
     - name: Prepare gitversion tagprefix
       id: prepare_tagprefix
@@ -74,12 +84,12 @@ jobs:
       with:
         git-tool-latest: 'true'
         use-config-file: 'true'
-        pre-release: 'false'
-        additional-arguments: '${{ steps.prepare_tagprefix.outputs.tag-prefix-config }} /b ${{ inputs.pr-branch-name }}'
+        pre-release: '${{ inputs.prerelease }}'
+        additional-arguments: '${{ steps.prepare_tagprefix.outputs.tag-prefix-config }}'
 
     - name: Create Major Release 
       id: create_major_release
-      if: ${{ inputs.create-major == 'true' }}
+      if: ${{ inputs.create-major == 'true' && inputs.prerelease == 'false' }}
       uses: ./.github/actions/create-github-release
       with:
         tag-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.Major }}'
@@ -93,7 +103,7 @@ jobs:
 
     - name: Create Major Minor Release 
       id: create_majorminor_release
-      if: ${{ inputs.create-major-minor == 'true' }}
+      if: ${{ inputs.create-major-minor == 'true' && inputs.prerelease == 'false' }}
       uses: ./.github/actions/create-github-release
       with:
         tag-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.Major }}.${{ steps.gitversion.outputs.Minor }}'
@@ -109,12 +119,12 @@ jobs:
       id: create_release
       uses: ./.github/actions/create-github-release
       with:
-        tag-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.MajorMinorPatch }}'
-        release-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.MajorMinorPatch }}'
+        tag-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.SemVer }}'
+        release-name: '${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.SemVer }}'
         commitish: '${{ github.sha }}'
         draft: false
-        prerelease: false
-        generate-notes: true
+        prerelease: ${{ inputs.prerelease }}
+        generate-notes: ${{ inputs.generate-notes }}
         token: ${{ github.token }}
         repo: ${{ github.repository }}
 
@@ -122,17 +132,17 @@ jobs:
       id: output-element
       shell: pwsh
       run: |
-        Write-Host "New Tag: ${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.majorMinorPatch }}"
-        Write-Host "New version: ${{ steps.gitversion.outputs.majorMinorPatch }}"
-        "# :bookmark: New Tag: ${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.majorMinorPatch }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-        "## New Version: ${{ steps.gitversion.outputs.majorMinorPatch }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+        Write-Host "New Tag: ${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.SemVer }}"
+        Write-Host "New version: ${{ steps.gitversion.outputs.SemVer }}"
+        "# :bookmark: New Tag: ${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.SemVer }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+        "## New Version: ${{ steps.gitversion.outputs.SemVer }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
         "## Branch: ${{ inputs.pr-branch-name }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
         "[View Release on GitHub](${{ steps.create_release.outputs.release-url }}) `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
 
-    - name: Delete Merged Branch
-      if: ${{ inputs.delete-merged-branch == true }}
-      shell: 'pwsh'
-      run: | 
-        if ('${{ inputs.pr-branch-name }}' -ne '${{ github.event.repository.default_branch }}') {
-          git push origin --delete ${{ inputs.pr-branch-name }}
-        }
+    # - name: Delete Merged Branch
+    #   if: ${{ inputs.delete-merged-branch == true }}
+    #   shell: 'pwsh'
+    #   run: | 
+    #     if ('${{ inputs.pr-branch-name }}' -ne '${{ github.event.repository.default_branch }}') {
+    #       git push origin --delete ${{ inputs.pr-branch-name }}
+    #     }
