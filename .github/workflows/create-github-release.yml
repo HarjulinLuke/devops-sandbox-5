@@ -7,12 +7,12 @@ on:
         description: 'PR Number'
         required: false
         type: string
-        default: '${{ github.event.pull_request.number }}'
+        default: '${{ github.event.pull_request_target.number }}'
       pr-branch-name:
         description: 'PR Branch Name'
         required: false
         type: string
-        default: '${{ github.event.pull_request.head.ref }}'
+        default: '${{ github.event.pull_request_target.head.ref }}'
       tag-prefix:
         description: "Prefix for the tag. Default is empty"
         required: false
@@ -52,7 +52,7 @@ permissions:
 jobs:
   CreateNewReleaseVersion:
     name: 'Create New Tags'
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged
+    if: github.event_name == 'pull_request_target' && github.event.pull_request_target.merged
     runs-on: 'ubuntu-latest'
     steps:
     - name: Checkout
