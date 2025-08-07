@@ -1,5 +1,6 @@
 {
   "feature": "A",
   "new": "B",
-  "hotfix": "This is a hotfix"
+  "hotfix": "This is a hotfix",
+  "hotfix2": "This is another hotfix"
 }
