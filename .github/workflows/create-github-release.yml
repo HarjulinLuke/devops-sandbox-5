@@ -60,16 +60,16 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Restore PR Branch
-      uses: ./.github/actions/restore-pr-branch
-      id: restore-pr-branch
-      with:
-        pr-number: ${{ inputs.pr-number }}
-        pr-branch-name: ${{ inputs.pr-branch-name }}
-        repo-owner: ${{ github.repository_owner }}
-        repo-name: ${{ github.event.repository.name }}
-        github-token: ${{ github.token }}
-        checkout-pr-branch: 'true'
+    # - name: Restore PR Branch
+    #   uses: ./.github/actions/restore-pr-branch
+    #   id: restore-pr-branch
+    #   with:
+    #     pr-number: ${{ inputs.pr-number }}
+    #     pr-branch-name: ${{ inputs.pr-branch-name }}
+    #     repo-owner: ${{ github.repository_owner }}
+    #     repo-name: ${{ github.event.repository.name }}
+    #     github-token: ${{ github.token }}
+    #     checkout-pr-branch: 'true'
 
     - name: Prepare gitversion tagprefix
       id: prepare_tagprefix
@@ -85,7 +85,7 @@ jobs:
         git-tool-latest: 'true'
         use-config-file: 'true'
         pre-release: 'false'
-        additional-arguments: '${{ steps.prepare_tagprefix.outputs.tag-prefix-config }} /b ${{ inputs.pr-branch-name }}'
+        additional-arguments: '${{ steps.prepare_tagprefix.outputs.tag-prefix-config }}'
 
     - name: Create Major Release 
       id: create_major_release
@@ -139,10 +139,10 @@ jobs:
         "## Branch: ${{ inputs.pr-branch-name }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
         "[View Release on GitHub](${{ steps.create_release.outputs.release-url }}) `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
 
-    - name: Delete Merged Branch
-      if: ${{ inputs.delete-merged-branch == true }}
-      shell: 'pwsh'
-      run: | 
-        if ('${{ inputs.pr-branch-name }}' -ne '${{ github.event.repository.default_branch }}') {
-          git push origin --delete ${{ inputs.pr-branch-name }}
-        }
+    # - name: Delete Merged Branch
+    #   if: ${{ inputs.delete-merged-branch == true }}
+    #   shell: 'pwsh'
+    #   run: | 
+    #     if ('${{ inputs.pr-branch-name }}' -ne '${{ github.event.repository.default_branch }}') {
+    #       git push origin --delete ${{ inputs.pr-branch-name }}
+    #     }

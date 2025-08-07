@@ -145,28 +145,28 @@ runs:
     id: output-gitversion
     shell: pwsh
     run: |
-      "major=$env:GitVersion_Major" >> $env:GITHUB_OUTPUT
-      "minor=$env:GitVersion_Minor" >> $env:GITHUB_OUTPUT
-      "patch=$env:GitVersion_Patch" >> $env:GITHUB_OUTPUT
-      "preReleaseTag=$env:GitVersion_PreReleaseTag" >> $env:GITHUB_OUTPUT
-      "preReleaseTagWithDash=$env:GitVersion_PreReleaseTagWithDash" >> $env:GITHUB_OUTPUT
-      "preReleaseLabel=$env:GitVersion_PreReleaseLabel" >> $env:GITHUB_OUTPUT
-      "preReleaseNumber=$env:GitVersion_PreReleaseNumber" >> $env:GITHUB_OUTPUT
-      "weightedPreReleaseNumber=$env:GitVersion_WeightedPreReleaseNumber" >> $env:GITHUB_OUTPUT
-      "buildMetaData=$env:GitVersion_BuildMetaData" >> $env:GITHUB_OUTPUT
-      "fullBuildMetaData=$env:GitVersion_FullBuildMetaData" >> $env:GITHUB_OUTPUT
-      "majorMinorPatch=$env:GitVersion_MajorMinorPatch" >> $env:GITHUB_OUTPUT
-      "semVer=$env:GitVersion_SemVer" >> $env:GITHUB_OUTPUT
-      "assemblySemVer=$env:GitVersion_AssemblySemVer" >> $env:GITHUB_OUTPUT
-      "assemblySemFileVer=$env:GitVersion_AssemblySemFileVer" >> $env:GITHUB_OUTPUT
-      "fullSemVer=$env:GitVersion_FullSemVer" >> $env:GITHUB_OUTPUT
-      "informationalVersion=$env:GitVersion_InformationalVersion" >> $env:GITHUB_OUTPUT
-      "branchName=$env:GitVersion_BranchName" >> $env:GITHUB_OUTPUT
-      "escapedBranchName=$env:GitVersion_EscapedBranchName" >> $env:GITHUB_OUTPUT
-      "sha=$env:GitVersion_Sha" >> $env:GITHUB_OUTPUT
-      "shortSha=$env:GitVersion_ShortSha" >> $env:GITHUB_OUTPUT
-      "versionSourceSha=$env:GitVersion_VersionSourceSha" >> $env:GITHUB_OUTPUT
-      "commitsSinceVersionSource=$env:GitVersion_CommitsSinceVersionSource" >> $env:GITHUB_OUTPUT
-      "uncommittedChanges=$env:GitVersion_UncommittedChanges" >> $env:GITHUB_OUTPUT
-      "commitDate=$env:GitVersion_CommitDate" >> $env:GITHUB_OUTPUT
+      "major=${{ env.GitVersion_Major }}" >> $env:GITHUB_OUTPUT
+      "minor=${{ env.GitVersion_Minor }}" >> $env:GITHUB_OUTPUT
+      "patch=${{ env.GitVersion_Patch }}" >> $env:GITHUB_OUTPUT
+      "preReleaseTag=${{ env.GitVersion_PreReleaseTag }}" >> $env:GITHUB_OUTPUT
+      "preReleaseTagWithDash=${{ env.GitVersion_PreReleaseTagWithDash }}" >> $env:GITHUB_OUTPUT
+      "preReleaseLabel=${{ env.GitVersion_PreReleaseLabel }}" >> $env:GITHUB_OUTPUT
+      "preReleaseNumber=${{ env.GitVersion_PreReleaseNumber }}" >> $env:GITHUB_OUTPUT
+      "weightedPreReleaseNumber=${{ env.GitVersion_WeightedPreReleaseNumber }}" >> $env:GITHUB_OUTPUT
+      "buildMetaData=${{ env.GitVersion_BuildMetaData }}" >> $env:GITHUB_OUTPUT
+      "fullBuildMetaData=${{ env.GitVersion_FullBuildMetaData }}" >> $env:GITHUB_OUTPUT
+      "majorMinorPatch=${{ env.GitVersion_MajorMinorPatch }}" >> $env:GITHUB_OUTPUT
+      "semVer=${{ env.GitVersion_SemVer }}" >> $env:GITHUB_OUTPUT
+      "assemblySemVer=${{ env.GitVersion_AssemblySemVer }}" >> $env:GITHUB_OUTPUT
+      "assemblySemFileVer=${{ env.GitVersion_AssemblySemFileVer }}" >> $env:GITHUB_OUTPUT
+      "fullSemVer=${{ env.GitVersion_FullSemVer }}" >> $env:GITHUB_OUTPUT
+      "informationalVersion=${{ env.GitVersion_InformationalVersion }}" >> $env:GITHUB_OUTPUT
+      "branchName=${{ env.GitVersion_BranchName }}" >> $env:GITHUB_OUTPUT
+      "escapedBranchName=${{ env.GitVersion_EscapedBranchName }}" >> $env:GITHUB_OUTPUT
+      "sha=${{ env.GitVersion_Sha }}" >> $env:GITHUB_OUTPUT
+      "shortSha=${{ env.GitVersion_ShortSha }}" >> $env:GITHUB_OUTPUT
+      "versionSourceSha=${{ env.GitVersion_VersionSourceSha }}" >> $env:GITHUB_OUTPUT
+      "commitsSinceVersionSource=${{ env.GitVersion_CommitsSinceVersionSource }}" >> $env:GITHUB_OUTPUT
+      "uncommittedChanges=${{ env.GitVersion_UncommittedChanges }}" >> $env:GITHUB_OUTPUT
+      "commitDate=${{ env.GitVersion_CommitDate }}" >> $env:GITHUB_OUTPUT
       Write-Host "GitVersion outputs set."
