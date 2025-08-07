@@ -3,16 +3,6 @@ description: 'Create a new GitHub release using GitVersion after a PR is closed 
 on:
   workflow_call:
     inputs:
-      pr-number:
-        description: 'PR Number'
-        required: false
-        type: string
-        default: '${{ github.event.pull_request.number }}'
-      pr-branch-name:
-        description: 'PR Branch Name'
-        required: false
-        type: string
-        default: '${{ github.event.pull_request.head.ref }}'
       tag-prefix:
         description: "Prefix for the tag. Default is empty"
         required: false
@@ -52,24 +42,12 @@ permissions:
 jobs:
   CreateNewReleaseVersion:
     name: 'Create New Tags'
-    if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
     runs-on: 'ubuntu-latest'
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-
-    # - name: Restore PR Branch
-    #   uses: ./.github/actions/restore-pr-branch
-    #   id: restore-pr-branch
-    #   with:
-    #     pr-number: ${{ inputs.pr-number }}
-    #     pr-branch-name: ${{ inputs.pr-branch-name }}
-    #     repo-owner: ${{ github.repository_owner }}
-    #     repo-name: ${{ github.event.repository.name }}
-    #     github-token: ${{ github.token }}
-    #     checkout-pr-branch: 'true'
 
     - name: Prepare gitversion tagprefix
       id: prepare_tagprefix
@@ -133,14 +111,5 @@ jobs:
       shell: pwsh
       run: |
         Write-Host "New Tag: ${{ steps.create_release.outputs.tag-name }}"
-        "# :bookmark: New Tag: ${{ inputs.tag-prefix }}${{ steps.gitversion.outputs.SemVer }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-        "## Branch: ${{ inputs.pr-branch-name }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-        "[View Release on GitHub](${{ steps.create_release.outputs.release-url }}) `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-
-    # - name: Delete Merged Branch
-    #   if: ${{ inputs.delete-merged-branch == 'true' }}
-    #   shell: 'pwsh'
-    #   run: | 
-    #     if ('${{ inputs.pr-branch-name }}' -ne '${{ github.event.repository.default_branch }}') {
-    #       git push origin --delete ${{ inputs.pr-branch-name }}
-    #     }
+        "# :bookmark: New Tag: ${{ steps.create_release.outputs.tag-name }} `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+        "# [View Release on GitHub](${{ steps.create_release.outputs.release-url }}) `r`n" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
