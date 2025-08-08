@@ -3,7 +3,7 @@ run-name: New ${{ github.ref_name == 'main' && 'Release' || 'Prerelease' }} Vers
 
 on:
   push:
-    branches: ['main', 'develop', 'release/*', 'hotfix/*']
+    branches: ['main', 'develop', 'release/*', 'hotfix/*', 'release', 'rc*' ]
 
 permissions:
   id-token: write
@@ -20,3 +20,4 @@ jobs:
       tag-prefix: 'v'
       prerelease: ${{ github.ref_name != 'main' }}
       generate-notes: ${{ github.ref_name == 'main' }}
+
