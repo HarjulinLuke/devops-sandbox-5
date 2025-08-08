@@ -56,6 +56,7 @@ jobs:
         pre-release: '${{ inputs.prerelease }}'
         override-config: |
           workflow=GitFlow/v1
+          mode=ContinuousDeployment
 
     - name: Create Major Release 
       id: create_major_release
