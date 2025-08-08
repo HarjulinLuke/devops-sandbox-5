@@ -1,9 +1,13 @@
-name: Sync a Branch with Main
+name: Sync a Branch with a Target Branch
 
 inputs:
   branch:
     required: true
     description: 'Branch that needs synchronization with main'
+  target-branch:
+    required: false
+    description: 'Target branch to sync with, defaults to main'
+    default: 'main'
   gh_app_id:
     required: true
     description: 'GitHub App ID to perform actions.'
@@ -26,7 +30,7 @@ runs:
       git fetch origin ${{ inputs.branch }}
       $diff = git diff origin/${{ inputs.branch }}
       if ($diff -eq $null) {
-        "# No difference between main and ${{ inputs.branch }}" >> $env:GITHUB_STEP_SUMMARY
+        "# No difference between ${{ inputs.target-branch }} and ${{ inputs.branch }}" >> $env:GITHUB_STEP_SUMMARY
       }
 
   - name: Check if PR already exists
@@ -35,19 +39,19 @@ runs:
     env:
       GH_TOKEN: ${{ github.token }}
     run: |
-      $prList = gh pr list --base ${{ inputs.branch }} --head main --state open --json url | ConvertFrom-Json
+      $prList = gh pr list --base ${{ inputs.branch }} --head ${{ inputs.target-branch }} --state open --json url | ConvertFrom-Json
       
       if ($prList.Count -eq 0) {
         "PR=" >> $env:GITHUB_ENV
-        "# New PR between main and ${{ inputs.branch }}" >> $env:GITHUB_STEP_SUMMARY
+        "# New PR between ${{ inputs.target-branch }} and ${{ inputs.branch }}" >> $env:GITHUB_STEP_SUMMARY
       }
       else {
         "PR=$($prList.url)" >> $env:GITHUB_ENV
         "# PR already exists" >> $env:GITHUB_STEP_SUMMARY
-        "Link to PR syncing main and ${{ inputs.branch }}: $($prList.url)" >> $env:GITHUB_STEP_SUMMARY
+        "Link to PR syncing ${{ inputs.target-branch }} and ${{ inputs.branch }}: $($prList.url)" >> $env:GITHUB_STEP_SUMMARY
       }
 
-  - name: Create PR to sync ${{ inputs.branch }} with main
+  - name: Create PR to sync ${{ inputs.branch }} with ${{ inputs.target-branch }}
     if: ${{ env.PR == '' }}
     id: create-pr
     shell: pwsh
@@ -60,11 +64,11 @@ runs:
       git fetch origin ${{ inputs.branch }}
       git merge --no-commit --no-ff origin/${{ inputs.branch }}
       if ($? -eq $true) {
-        Write-Host "Creating PR to merge main into ${{ inputs.branch }}..."
+        Write-Host "Creating PR to merge ${{ inputs.target-branch }} into ${{ inputs.branch }}..."
         git merge --abort
-        $pr = gh pr create --base ${{ inputs.branch }} --head main --title "Sync ${{ inputs.branch }} with main" --body "Please review and merge changes."
+        $pr = gh pr create --base ${{ inputs.branch }} --head ${{ inputs.target-branch }} --title "Sync ${{ inputs.branch }} with ${{ inputs.target-branch }}" --body "Please review and merge changes."
         "conflict=false" >> $env:GITHUB_OUTPUT
-        "Link to PR syncing main and ${{ inputs.branch }}: $pr" >> $env:GITHUB_STEP_SUMMARY
+        "Link to PR syncing ${{ inputs.target-branch }} and ${{ inputs.branch }}: $pr" >> $env:GITHUB_STEP_SUMMARY
       }
       else {
         Write-Host "Merge conflict(s) detected. Creating PR for user to resolve..."
@@ -74,9 +78,9 @@ runs:
         } else {
           $branchType = "develop" 
         }
-        git checkout -b conflict/main-$branchType
-        git push --set-upstream origin conflict/main-$branchType
-        $pr = gh pr create --base ${{ inputs.branch }} --head conflict/main-$branchType --title "Sync ${{ inputs.branch }} with main (conflict)" --body "Please resolve merge conflicts."
+        git checkout -b conflict/${{ inputs.target-branch }}-$branchType
+        git push --set-upstream origin conflict/${{ inputs.target-branch }}-$branchType
+        $pr = gh pr create --base ${{ inputs.branch }} --head conflict/${{ inputs.target-branch }}-$branchType --title "Sync ${{ inputs.branch }} with ${{ inputs.target-branch }} (conflict)" --body "Please resolve merge conflicts."
         "conflict=true" >> $env:GITHUB_OUTPUT
         "Conflict in merge. Link to PR: $pr" >> $env:GITHUB_STEP_SUMMARY
       }
