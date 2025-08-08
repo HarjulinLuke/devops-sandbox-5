@@ -2,5 +2,6 @@
   "feature": "A",
   "new": "B",
   "hotfix": "This is a hotfix",
-  "hotfix2": "This is another hotfix"
+  "hotfix2": "This is another hotfix",
+  "hotfix3": "This is a third hotfix"
 }
