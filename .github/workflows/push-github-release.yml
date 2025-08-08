@@ -55,7 +55,7 @@ jobs:
         use-config-file: 'true'
         pre-release: '${{ inputs.prerelease }}'
         override-config: |
-          workflow=GitFlow/v1
+          workflow: GitFlow/v1
           branches:
             main:
               mode: ContinuousDeployment
