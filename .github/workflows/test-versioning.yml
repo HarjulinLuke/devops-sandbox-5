@@ -18,4 +18,6 @@ jobs:
         git-tool-latest: 'true'
         use-config-file: 'true'
         pre-release: ${{ github.ref_name != 'main' && 'true' || 'false' }}
-        additional-arguments: '/overrideconfig tag-prefix=v /b ${{ github.ref_name }}'
+        override-config: |
+          workflow=GitFlow/v1
+
