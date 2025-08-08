@@ -54,7 +54,8 @@ jobs:
         git-tool-latest: 'true'
         use-config-file: 'true'
         pre-release: '${{ inputs.prerelease }}'
-        additional-arguments: ${{ inputs.tag-prefix != '' && format('/overrideconfig tag-prefix={0}', inputs.tag-prefix) || '' }}
+        override-config: |
+          workflow=GitFlow/v1
 
     - name: Create Major Release 
       id: create_major_release

@@ -25,7 +25,7 @@ jobs:
 
     - name: Sync develop with main
       id: sync-develop
-      uses: ./.github/actions/sync-branch-with-main
+      uses: ./.github/actions/sync-branch-with-target
       with:
         branch: develop
         gh_app_id: ${{ vars.GH_APP_ID }}
@@ -61,7 +61,7 @@ jobs:
     - name: Sync release with main
       if: ${{ steps.check-release-exists.outputs.releaseExists == 'true' }}
       id: sync-release
-      uses: ./.github/actions/sync-branch-with-main
+      uses: ./.github/actions/sync-branch-with-target
       with:
         branch: ${{ steps.check-release-exists.outputs.releaseBranch }}
         gh_app_id: ${{ vars.GH_APP_ID }}
