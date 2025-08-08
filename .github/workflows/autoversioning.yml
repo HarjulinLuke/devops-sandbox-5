@@ -3,7 +3,7 @@ run-name: New ${{ github.ref_name == 'main' && 'Release' || 'Prerelease' }} Vers
 
 on:
   push:
-    branches: ['main', 'develop', 'release/*', 'hotfix/*']
+    branches: ['main', 'develop', 'release/*', 'hotfix/*', 'rc*', 'RC*']
 
 permissions:
   id-token: write
