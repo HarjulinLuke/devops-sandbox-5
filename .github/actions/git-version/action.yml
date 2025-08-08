@@ -20,76 +20,76 @@ inputs:
   
 outputs:
   Major:
-    value: ${{ steps.output-gitversion.outputs.major }}
+    value: ${{ steps.gitversion.outputs.major }}
     description: ''
   Minor:
-    value: ${{ steps.output-gitversion.outputs.minor }}
+    value: ${{ steps.gitversion.outputs.minor }}
     description: ''
   Patch:
-    value: ${{ steps.output-gitversion.outputs.patch }}
+    value: ${{ steps.gitversion.outputs.patch }}
     description: ''
   PreReleaseTag:
-    value: ${{ steps.output-gitversion.outputs.preReleaseTag }}
+    value: ${{ steps.gitversion.outputs.preReleaseTag }}
     description: ''
   PreReleaseTagWithDash:
-    value: ${{ steps.output-gitversion.outputs.preReleaseTagWithDash }}
+    value: ${{ steps.gitversion.outputs.preReleaseTagWithDash }}
     description: ''
   PreReleaseLabel:
-    value: ${{ steps.output-gitversion.outputs.preReleaseLabel }}
+    value: ${{ steps.gitversion.outputs.preReleaseLabel }}
     description: ''
   PreReleaseNumber:
-    value: ${{ steps.output-gitversion.outputs.preReleaseNumber }}
+    value: ${{ steps.gitversion.outputs.preReleaseNumber }}
     description: ''
   WeightedPreReleaseNumber:
-    value: ${{ steps.output-gitversion.outputs.weightedPreReleaseNumber }}
+    value: ${{ steps.gitversion.outputs.weightedPreReleaseNumber }}
     description: ''
   BuildMetaData:
-    value: ${{ steps.output-gitversion.outputs.buildMetaData }}
+    value: ${{ steps.gitversion.outputs.buildMetaData }}
     description: ''
   FullBuildMetaData:
-    value: ${{ steps.output-gitversion.outputs.fullBuildMetaData }}
+    value: ${{ steps.gitversion.outputs.fullBuildMetaData }}
     description: ''
   MajorMinorPatch:
-    value: ${{ steps.output-gitversion.outputs.majorMinorPatch }}
+    value: ${{ steps.gitversion.outputs.majorMinorPatch }}
     description: ''
   SemVer:
-    value: ${{ steps.output-gitversion.outputs.semVer }}
+    value: ${{ steps.gitversion.outputs.semVer }}
     description: ''
   AssemblySemVer:
-    value: ${{ steps.output-gitversion.outputs.assemblySemVer }}
+    value: ${{ steps.gitversion.outputs.assemblySemVer }}
     description: ''
   AssemblySemFileVer:
-    value: ${{ steps.output-gitversion.outputs.assemblySemFileVer }}
+    value: ${{ steps.gitversion.outputs.assemblySemFileVer }}
     description: ''
   FullSemVer:
-    value: ${{ steps.output-gitversion.outputs.fullSemVer }}
+    value: ${{ steps.gitversion.outputs.fullSemVer }}
     description: ''
   InformationalVersion:
-    value: ${{ steps.output-gitversion.outputs.informationalVersion }}
+    value: ${{ steps.gitversion.outputs.informationalVersion }}
     description: ''
   BranchName:
-    value: ${{ steps.output-gitversion.outputs.branchName }}
+    value: ${{ steps.gitversion.outputs.branchName }}
     description: ''
   EscapedBranchName:
-    value: ${{ steps.output-gitversion.outputs.escapedBranchName }}
+    value: ${{ steps.gitversion.outputs.escapedBranchName }}
     description: ''
   Sha:
-    value: ${{ steps.output-gitversion.outputs.sha }}
+    value: ${{ steps.gitversion.outputs.sha }}
     description: ''
   ShortSha:
-    value: ${{ steps.output-gitversion.outputs.shortSha }}
+    value: ${{ steps.gitversion.outputs.shortSha }}
     description: ''
   VersionSourceSha:
-    value: ${{ steps.output-gitversion.outputs.versionSourceSha }}
+    value: ${{ steps.gitversion.outputs.versionSourceSha }}
     description: ''
   CommitsSinceVersionSource:
-    value: ${{ steps.output-gitversion.outputs.commitsSinceVersionSource }}
+    value: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
     description: ''
   UncommittedChanges:
-    value: ${{ steps.output-gitversion.outputs.uncommittedChanges }}
+    value: ${{ steps.gitversion.outputs.uncommittedChanges }}
     description: ''
   CommitDate:
-    value: ${{ steps.output-gitversion.outputs.commitDate }}
+    value: ${{ steps.gitversion.outputs.commitDate }}
     description: ''
 
 runs:
@@ -137,33 +137,3 @@ runs:
       echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }}"
       echo "UncommittedChanges: ${{ steps.gitversion.outputs.UncommittedChanges }}"
       echo "CommitDate: ${{ steps.gitversion.outputs.CommitDate }}"
-
-  - name: Output GitVersion results
-    id: output-gitversion
-    shell: pwsh
-    run: |
-      "major=${{ steps.gitversion.outputs.Major }}" >> $env:GITHUB_OUTPUT
-      "minor=${{ steps.gitversion.outputs.Minor }}" >> $env:GITHUB_OUTPUT
-      "patch=${{ steps.gitversion.outputs.Patch }}" >> $env:GITHUB_OUTPUT
-      "preReleaseTag=${{ steps.gitversion.outputs.PreReleaseTag }}" >> $env:GITHUB_OUTPUT
-      "preReleaseTagWithDash=${{ steps.gitversion.outputs.PreReleaseTagWithDash }}" >> $env:GITHUB_OUTPUT
-      "preReleaseLabel=${{ steps.gitversion.outputs.PreReleaseLabel }}" >> $env:GITHUB_OUTPUT
-      "preReleaseNumber=${{ steps.gitversion.outputs.PreReleaseNumber }}" >> $env:GITHUB_OUTPUT
-      "weightedPreReleaseNumber=${{ steps.gitversion.outputs.WeightedPreReleaseNumber }}" >> $env:GITHUB_OUTPUT
-      "buildMetaData=${{ steps.gitversion.outputs.BuildMetaData }}" >> $env:GITHUB_OUTPUT
-      "fullBuildMetaData=${{ steps.gitversion.outputs.FullBuildMetaData }}" >> $env:GITHUB_OUTPUT
-      "majorMinorPatch=${{ steps.gitversion.outputs.MajorMinorPatch }}" >> $env:GITHUB_OUTPUT
-      "semVer=${{ steps.gitversion.outputs.SemVer }}" >> $env:GITHUB_OUTPUT
-      "assemblySemVer=${{ steps.gitversion.outputs.AssemblySemVer }}" >> $env:GITHUB_OUTPUT
-      "assemblySemFileVer=${{ steps.gitversion.outputs.AssemblySemFileVer }}" >> $env:GITHUB_OUTPUT
-      "fullSemVer=${{ steps.gitversion.outputs.FullSemVer }}" >> $env:GITHUB_OUTPUT
-      "informationalVersion=${{ steps.gitversion.outputs.InformationalVersion }}" >> $env:GITHUB_OUTPUT
-      "branchName=${{ steps.gitversion.outputs.BranchName }}" >> $env:GITHUB_OUTPUT
-      "escapedBranchName=${{ steps.gitversion.outputs.EscapedBranchName }}" >> $env:GITHUB_OUTPUT
-      "sha=${{ steps.gitversion.outputs.Sha }}" >> $env:GITHUB_OUTPUT
-      "shortSha=${{ steps.gitversion.outputs.ShortSha }}" >> $env:GITHUB_OUTPUT
-      "versionSourceSha=${{ steps.gitversion.outputs.VersionSourceSha }}" >> $env:GITHUB_OUTPUT
-      "commitsSinceVersionSource=${{ steps.gitversion.outputs.CommitsSinceVersionSource }}" >> $env:GITHUB_OUTPUT
-      "uncommittedChanges=${{ steps.gitversion.outputs.UncommittedChanges }}" >> $env:GITHUB_OUTPUT
-      "commitDate=${{ steps.gitversion.outputs.CommitDate }}" >> $env:GITHUB_OUTPUT
-      Write-Host "GitVersion outputs set."
